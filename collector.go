@@ -95,7 +95,8 @@ func ScrapeTarget(ctx context.Context, target string, config *config.Module, ibc
 	}
 
 	snmp.Target = target
-	level.Debug(logger).Log("msg", "Final: Target: ", snmp)
+	level.Info(logger).Log("msg", "Parametros -IBCheck(Collect): ", "target", target, "Community", ibcommunity)
+	level.Info(logger).Log("Debug", snmp)
 	snmp.Port = 161
 	if host, port, err := net.SplitHostPort(target); err == nil {
 		snmp.Target = host
