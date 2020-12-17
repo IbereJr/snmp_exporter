@@ -21,7 +21,6 @@ _testmain.go
 
 *.exe
 dependencies-stamp
-/snmp_exporter
 /.build
 /.release
 /.tarballs
