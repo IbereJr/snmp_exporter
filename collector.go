@@ -90,14 +90,7 @@ func ScrapeTarget(ctx context.Context, target string, config *config.Module, ibc
 	snmp.MaxRepetitions = config.WalkParams.MaxRepetitions
 	snmp.Retries = config.WalkParams.Retries
 	snmp.Timeout = config.WalkParams.Timeout
-	if len(ibcommunity) > 0 {
-	//	snmp.Community = ibcommunity
-		snmp.SetCommunity(ibcommunity)
-	}
-
 	snmp.Target = target
-	level.Info(logger).Log("msg", "Parametros -IBCheck(Collect): ", "target", target, "Community", snmp.Community)
-	level.Info(logger).Log("Debug", fmt.Printf("%v", snmp))
 	snmp.Port = 161
 	if host, port, err := net.SplitHostPort(target); err == nil {
 		snmp.Target = host
@@ -110,6 +103,12 @@ func ScrapeTarget(ctx context.Context, target string, config *config.Module, ibc
 
 	// Configure auth.
 	config.WalkParams.ConfigureSNMP(&snmp)
+
+	if len(ibcommunity) > 0 {
+	//	snmp.Community = ibcommunity
+		snmp.SetCommunity(ibcommunity)
+	}
+	level.Info(logger).Log("msg", "Parametros -IBCheck(>Collect): ", "target", target, "Community", snmp.Community)
 
 	// Do the actual walk.
 	err := snmp.Connect()
