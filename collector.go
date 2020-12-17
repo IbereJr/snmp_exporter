@@ -105,8 +105,8 @@ func ScrapeTarget(ctx context.Context, target string, config *config.Module, ibc
 	config.WalkParams.ConfigureSNMP(&snmp)
 
 	if len(ibcommunity) > 0 {
-	//	snmp.Community = ibcommunity
-		snmp.SetCommunity(ibcommunity)
+		snmp.Community = ibcommunity
+		//snmp.SetCommunity(ibcommunity)
 	}
 	level.Info(logger).Log("msg", "Parametros -IBCheck(>Collect): ", "target", target, "Community", snmp.Community)
 
