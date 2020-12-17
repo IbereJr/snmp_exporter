@@ -83,13 +83,16 @@ func listToOid(l []int) string {
 	return strings.Join(result, ".")
 }
 
-func ScrapeTarget(ctx context.Context, target string, config *config.Module, logger log.Logger) ([]gosnmp.SnmpPDU, error) {
+func ScrapeTarget(ctx context.Context, target string, config *config.Module, ibcommunity string, logger log.Logger) ([]gosnmp.SnmpPDU, error) {
 	// Set the options.
 	snmp := gosnmp.GoSNMP{}
 	snmp.Context = ctx
 	snmp.MaxRepetitions = config.WalkParams.MaxRepetitions
 	snmp.Retries = config.WalkParams.Retries
 	snmp.Timeout = config.WalkParams.Timeout
+	if ibcommunity != "" {
+		snmp.Community = ibcommunity
+	}
 
 	snmp.Target = target
 	snmp.Port = 161
@@ -205,10 +208,11 @@ func buildMetricTree(metrics []*config.Metric) *MetricNode {
 }
 
 type collector struct {
-	ctx    context.Context
-	target string
-	module *config.Module
-	logger log.Logger
+	ctx         context.Context
+	target      string
+	module      *config.Module
+	ibcommunity string
+	logger      log.Logger
 }
 
 // Describe implements Prometheus.Collector.
@@ -219,7 +223,7 @@ func (c collector) Describe(ch chan<- *prometheus.Desc) {
 // Collect implements Prometheus.Collector.
 func (c collector) Collect(ch chan<- prometheus.Metric) {
 	start := time.Now()
-	pdus, err := ScrapeTarget(c.ctx, c.target, c.module, c.logger)
+	pdus, err := ScrapeTarget(c.ctx, c.target, c.module, c.ibcommunity, c.logger)
 	if err != nil {
 		level.Info(c.logger).Log("msg", "Error scraping target", "err", err)
 		ch <- prometheus.NewInvalidMetric(prometheus.NewDesc("snmp_error", "Error scraping target", nil, nil), err)

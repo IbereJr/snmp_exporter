@@ -86,6 +86,9 @@ func handler(w http.ResponseWriter, r *http.Request, logger log.Logger) {
 	if moduleName == "" {
 		moduleName = "if_mib"
 	}
+
+	ibcommunity := query.Get("community")
+
 	sc.RLock()
 	module, ok := (*(sc.C))[moduleName]
 	sc.RUnlock()
@@ -100,7 +103,7 @@ func handler(w http.ResponseWriter, r *http.Request, logger log.Logger) {
 
 	start := time.Now()
 	registry := prometheus.NewRegistry()
-	collector := collector{ctx: r.Context(), target: target, module: module, logger: logger}
+	collector := collector{ctx: r.Context(), target: target, module: module, ibcommunity: ibcommunity, logger: logger}
 	registry.MustRegister(collector)
 	// Delegate http serving to Prometheus client library, which will call collector.Collect.
 	h := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
