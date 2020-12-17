@@ -100,6 +100,7 @@ func handler(w http.ResponseWriter, r *http.Request, logger log.Logger) {
 
 	logger = log.With(logger, "module", moduleName, "target", target)
 	level.Debug(logger).Log("msg", "Starting scrape")
+	level.Info(logger).Log("msg", "Target Parameter: ", target, "Community Parameter: ", ibcommunity)
 
 	start := time.Now()
 	registry := prometheus.NewRegistry()
