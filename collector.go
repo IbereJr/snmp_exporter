@@ -83,7 +83,7 @@ func listToOid(l []int) string {
 	return strings.Join(result, ".")
 }
 
-func ScrapeTarget(ctx context.Context, target string, config *config.Module, ibcommunity string, logger log.Logger) ([]gosnmp.SnmpPDU, error) {
+func ScrapeTarget(ctx context.Context, target string, config *config.Module, ibcommunity string, ibports string, logger log.Logger) ([]gosnmp.SnmpPDU, error) {
 	// Set the options.
 	snmp := gosnmp.GoSNMP{}
 	snmp.Context = ctx
@@ -108,7 +108,7 @@ func ScrapeTarget(ctx context.Context, target string, config *config.Module, ibc
 		snmp.Community = ibcommunity
 		//snmp.SetCommunity(ibcommunity)
 	}
-	level.Info(logger).Log("msg", "Parametros -IBCheck(>Collect): ", "target", target, "Community", snmp.Community)
+	//level.Info(logger).Log("msg", "Parametros -IBCheck(>Collect): ", "target", target, "Community", snmp.Community)
 
 	// Do the actual walk.
 	err := snmp.Connect()
@@ -122,6 +122,7 @@ func ScrapeTarget(ctx context.Context, target string, config *config.Module, ibc
 
 	result := []gosnmp.SnmpPDU{}
 	getOids := config.Get
+	level.Info(logger).Log("msg", "Parametros -IBDebug: ", "Ports", ibports, "OIDs", getOids)
 	maxOids := int(config.WalkParams.MaxRepetitions)
 	// Max Repetition can be 0, maxOids cannot. SNMPv1 can only report one OID error per call.
 	if maxOids == 0 || snmp.Version == gosnmp.Version1 {
@@ -214,6 +215,7 @@ type collector struct {
 	target      string
 	module      *config.Module
 	ibcommunity string
+	ibports     string
 	logger      log.Logger
 }
 
@@ -225,7 +227,7 @@ func (c collector) Describe(ch chan<- *prometheus.Desc) {
 // Collect implements Prometheus.Collector.
 func (c collector) Collect(ch chan<- prometheus.Metric) {
 	start := time.Now()
-	pdus, err := ScrapeTarget(c.ctx, c.target, c.module, c.ibcommunity, c.logger)
+	pdus, err := ScrapeTarget(c.ctx, c.target, c.module, c.ibcommunity, c.ibports, c.logger)
 	if err != nil {
 		level.Info(c.logger).Log("msg", "Error scraping target", "err", err)
 		ch <- prometheus.NewInvalidMetric(prometheus.NewDesc("snmp_error", "Error scraping target", nil, nil), err)

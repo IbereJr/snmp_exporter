@@ -88,6 +88,7 @@ func handler(w http.ResponseWriter, r *http.Request, logger log.Logger) {
 	}
 
 	ibcommunity := query.Get("community")
+	ibports := query.Get("ports")
 
 	sc.RLock()
 	module, ok := (*(sc.C))[moduleName]
@@ -100,11 +101,11 @@ func handler(w http.ResponseWriter, r *http.Request, logger log.Logger) {
 
 	logger = log.With(logger, "module", moduleName, "target", target)
 	level.Debug(logger).Log("msg", "Starting scrape")
-	level.Info(logger).Log("msg", "Parametros -IBCheck(Main): ", "target", target, "Community", ibcommunity)
+	level.Info(logger).Log("msg", "Parametros -IBCheck(Main): ", "target", target, "Community", ibcommunity, "Ports", ibports)
 
 	start := time.Now()
 	registry := prometheus.NewRegistry()
-	collector := collector{ctx: r.Context(), target: target, module: module, ibcommunity: ibcommunity, logger: logger}
+	collector := collector{ctx: r.Context(), target: target, module: module, ibcommunity: ibcommunity, ibports: ibports, logger: logger}
 	registry.MustRegister(collector)
 	// Delegate http serving to Prometheus client library, which will call collector.Collect.
 	h := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
