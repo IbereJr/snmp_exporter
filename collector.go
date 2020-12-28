@@ -124,11 +124,9 @@ func ScrapeTarget(ctx context.Context, target string, config *config.Module, ibc
 	getOids := []string{}
 	for _, elget := range config.Get {
 		if len(ibports) > 0 {
-			fimget := elget
 			for _, elport := range strings.Split(ibports, ",") {
-				fimget = elget + "." + elport
+				getOids = append(getOids, elget+"."+elport)
 			}
-			getOids = append(getOids, fimget)
 		} else {
 			getOids = append(getOids, elget)
 		}
