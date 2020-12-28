@@ -122,7 +122,7 @@ func ScrapeTarget(ctx context.Context, target string, config *config.Module, ibc
 
 	result := []gosnmp.SnmpPDU{}
 	getOids := config.Get
-	level.Info(logger).Log("msg", "Parametros -IBDebug: ", "Ports", ibports, "OIDs", getOids)
+	level.Info(logger).Log("msg", "Parametros -IBDebug: ", "Ports", ibports, "OIDs", strings.Join(getOids, ","))
 	maxOids := int(config.WalkParams.MaxRepetitions)
 	// Max Repetition can be 0, maxOids cannot. SNMPv1 can only report one OID error per call.
 	if maxOids == 0 || snmp.Version == gosnmp.Version1 {
