@@ -123,13 +123,15 @@ func ScrapeTarget(ctx context.Context, target string, config *config.Module, ibc
 	result := []gosnmp.SnmpPDU{}
 	getOids := []string{}
 	for _, elget := range config.Get {
-		fimget := elget
 		if len(ibports) > 0 {
+			fimget := elget
 			for _, elport := range strings.Split(ibports, ",") {
-				fimget = fimget + "." + elport
+				fimget = elget + "." + elport
 			}
+			getOids = append(getOids, fimget)
+		} else {
+			getOids = append(getOids, elget)
 		}
-		getOids = append(getOids, fimget)
 	}
 	//getOids := config.Get
 	level.Info(logger).Log("msg", "Parametros -IBDebug: ", "Ports", ibports, "OIDs", strings.Join(getOids, ","))
